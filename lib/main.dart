@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flag/flag.dart';
 import 'package:flutter/material.dart';
 
@@ -6,6 +7,10 @@ void main() => runApp(App());
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return MaterialApp(
       title: 'COVID-19 Data Tracker',
       theme: ThemeData(primaryColor: Colors.red[800]),
