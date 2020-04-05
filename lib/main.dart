@@ -1,6 +1,8 @@
-import 'package:flutter/services.dart';
 import 'package:flag/flag.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+
+import 'model/country.dart';
 
 void main() => runApp(App());
 
@@ -22,8 +24,8 @@ class App extends StatelessWidget {
 class CountriesGridList extends StatelessWidget {
 //  const CountriesGridList({Key key}) : super(key: key);
 
-  final List<_Country> _countries = [
-    _Country(
+  final List<Country> _countries = [
+    Country(
       name: 'Brazil',
       code: 'BR',
       deaths: 17,
@@ -31,7 +33,7 @@ class CountriesGridList extends StatelessWidget {
       ranking: 17,
       recovered: 1555,
     ),
-    _Country(
+    Country(
       name: 'Portugal',
       code: 'PT',
       deaths: 15,
@@ -39,7 +41,7 @@ class CountriesGridList extends StatelessWidget {
       ranking: 15,
       recovered: 1555,
     ),
-    _Country(
+    Country(
       name: 'Italy',
       code: 'IT',
       deaths: 2,
@@ -47,7 +49,7 @@ class CountriesGridList extends StatelessWidget {
       ranking: 2,
       recovered: 1555,
     ),
-    _Country(
+    Country(
       name: 'Spain',
       code: 'ES',
       deaths: 3,
@@ -55,7 +57,7 @@ class CountriesGridList extends StatelessWidget {
       ranking: 3,
       recovered: 1555,
     ),
-    _Country(
+    Country(
       name: 'United States of America',
       code: 'US',
       deaths: 1,
@@ -63,7 +65,7 @@ class CountriesGridList extends StatelessWidget {
       ranking: 1,
       recovered: 1555,
     ),
-    _Country(
+    Country(
       name: 'Germany',
       code: 'DE',
       deaths: 5,
@@ -71,7 +73,7 @@ class CountriesGridList extends StatelessWidget {
       ranking: 5,
       recovered: 1555,
     ),
-    _Country(
+    Country(
       name: 'Japan',
       code: 'JP',
       deaths: 7,
@@ -79,7 +81,7 @@ class CountriesGridList extends StatelessWidget {
       ranking: 7,
       recovered: 1555,
     ),
-    _Country(
+    Country(
       name: 'Estonia',
       code: 'EE',
       deaths: 23,
@@ -109,34 +111,10 @@ class CountriesGridList extends StatelessWidget {
   }
 }
 
-class _Country {
-  _Country({
-    @required this.name,
-    @required this.code,
-    this.deaths = 0,
-    this.active = 0,
-    this.recovered = 0,
-    this.ranking = 999,
-    this.casesToday = 0,
-    this.deathsToday = 0,
-    this.casesPerMillion = 0,
-  });
-
-  final String name;
-  final String code;
-  final int deaths;
-  final int active;
-  final int recovered;
-  final int ranking;
-  final int casesToday;
-  final int deathsToday;
-  final int casesPerMillion;
-}
-
 class _CountryCard extends StatelessWidget {
   _CountryCard({Key key, @required this.country}) : super(key: key);
 
-  final _Country country;
+  final Country country;
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +147,7 @@ class _CountryCard extends StatelessWidget {
     );
   }
 
-  Widget _countryStats(_Country country) {
+  Widget _countryStats(Country country) {
     int totalCases = country.active + country.recovered + country.deaths;
     return Column(
       children: <Widget>[
