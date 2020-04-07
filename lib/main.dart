@@ -8,7 +8,7 @@ import 'model/country.dart';
 void main() => runApp(App());
 
 Future<List<Country>> fetchCountries(http.Client client) async {
-  final response = await client.get('https://corona.lmao.ninja/countries');
+  final response = await client.get('https://corona.lmao.ninja/countries/?sort=cases');
   return parseCountries(response.body);
 }
 
