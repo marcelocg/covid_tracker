@@ -20,7 +20,6 @@ class CountryInfo {
   double lat;
   @JsonKey(defaultValue: 0)
   double long;
-  @JsonKey()
   String flag;
   @JsonKey(ignore: true, defaultValue: '')
   String iso3;

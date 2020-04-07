@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flag/flag.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,11 +16,11 @@ List<Country> parseCountries(String responseBody) {
   List countriesArray = jsonDecode(responseBody);
 
   List<Country> countries = countriesArray
-                            .asMap()
-                            .map((index, c) =>
-                                MapEntry(index, Country.fromJson(c).setRanking(index + 1)))
-                            .values
-                            .toList();
+      .asMap()
+      .map((index, c) =>
+          MapEntry(index, Country.fromJson(c).setRanking(index + 1)))
+      .values
+      .toList();
 
   return countries;
 }
@@ -186,6 +185,16 @@ class _CountryCard extends StatelessWidget {
     );
   }
 
+  Widget _getFlag(Country c) {
+    Widget w;
+    try {
+      w = Image.network(country.countryInfo.flag, width: 36,);
+    } catch (e) {
+      w = Text('');
+    }
+    return w;
+  }
+
   Widget _countryCardTop() {
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -197,8 +206,7 @@ class _CountryCard extends StatelessWidget {
                 children: <Widget>[
                   Container(
                     padding: EdgeInsets.only(left: 10, top: 10),
-                    child:
-                        Flags.getMiniFlag(country.countryInfo.code, 24, null),
+                    child: _getFlag(country),
                   ),
                   Expanded(
                     child: Container(
