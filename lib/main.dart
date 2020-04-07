@@ -189,7 +189,7 @@ class _CountryCard extends StatelessWidget {
   Widget _getFlag(Country c) {
     Widget w;
     try {
-      w = Image.network(country.countryInfo.flag, width: 36,);
+      w = Image.network(country.countryInfo.flag, width: 36, height: 24,);
     } catch (e) {
       w = Text('');
     }
