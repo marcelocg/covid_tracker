@@ -31,8 +31,6 @@ class Country {
   double todayDeaths;
   @JsonKey(defaultValue: 0)
   double casesPerOneMillion;
-  @JsonKey(ignore: true, defaultValue: '')
-  String code;
   @JsonKey(ignore: true, defaultValue: 0)
   int ranking;
 
