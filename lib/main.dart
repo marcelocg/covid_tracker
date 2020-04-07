@@ -1,10 +1,30 @@
+import 'dart:convert';
 import 'package:flag/flag.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'model/country.dart';
 
 void main() => runApp(App());
+
+Future<List<Country>> fetchCountries(http.Client client) async {
+  final response = await client.get('https://corona.lmao.ninja/countries');
+  return parseCountries(response.body);
+}
+
+List<Country> parseCountries(String responseBody) {
+  List countriesArray = jsonDecode(responseBody);
+
+  List<Country> countries = countriesArray
+                            .asMap()
+                            .map((index, c) =>
+                                MapEntry(index, Country.fromJson(c).setRanking(index + 1)))
+                            .values
+                            .toList();
+
+  return countries;
+}
 
 class App extends StatelessWidget {
   @override
@@ -13,83 +33,23 @@ class App extends StatelessWidget {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+
+    final appTitle = 'COVID-19 Data Tracker';
+
     return MaterialApp(
-      title: 'COVID-19 Data Tracker',
+      title: appTitle,
       theme: ThemeData(primaryColor: Colors.red[800]),
-      home: CountriesGridList(),
+      home: CovidTrackerHomePage(
+        title: appTitle,
+      ),
     );
   }
 }
 
-class CountriesGridList extends StatelessWidget {
-//  const CountriesGridList({Key key}) : super(key: key);
+class CovidTrackerHomePage extends StatelessWidget {
+  final String title;
 
-  final List<Country> _countries = [
-    Country(
-      name: 'Brazil',
-      code: 'BR',
-      deaths: 17,
-      active: 155,
-      ranking: 17,
-      recovered: 1555,
-    ),
-    Country(
-      name: 'Portugal',
-      code: 'PT',
-      deaths: 15,
-      active: 155,
-      ranking: 15,
-      recovered: 1555,
-    ),
-    Country(
-      name: 'Italy',
-      code: 'IT',
-      deaths: 2,
-      active: 155,
-      ranking: 2,
-      recovered: 1555,
-    ),
-    Country(
-      name: 'Spain',
-      code: 'ES',
-      deaths: 3,
-      active: 155,
-      ranking: 3,
-      recovered: 1555,
-    ),
-    Country(
-      name: 'United States of America',
-      code: 'US',
-      deaths: 1,
-      active: 155,
-      ranking: 1,
-      recovered: 1555,
-    ),
-    Country(
-      name: 'Germany',
-      code: 'DE',
-      deaths: 5,
-      active: 155,
-      ranking: 5,
-      recovered: 1555,
-    ),
-    Country(
-      name: 'Japan',
-      code: 'JP',
-      deaths: 7,
-      active: 155,
-      ranking: 7,
-      recovered: 1555,
-    ),
-    Country(
-      name: 'Estonia',
-      code: 'EE',
-      deaths: 23,
-      active: 155,
-      ranking: 23,
-      recovered: 1555,
-    ),
-  ];
+  CovidTrackerHomePage({Key key, this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -97,16 +57,40 @@ class CountriesGridList extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         automaticallyImplyLeading: false,
-        title: Text('Covid-19 Data Tracker'),
+        title: Text(title),
       ),
-      body: GridView.count(
+      body: FutureBuilder<List<Country>>(
+        future: fetchCountries(http.Client()),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) print(snapshot.error);
+
+          return snapshot.hasData
+              ? CountriesGridList(countries: snapshot.data)
+              : Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
+  }
+}
+
+class CountriesGridList extends StatelessWidget {
+  final List<Country> countries;
+
+  CountriesGridList({Key key, this.countries}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        padding: EdgeInsets.all(10.0),
         childAspectRatio: 16.0 / 15.0,
-        children: _countries.map<Widget>((country) {
-          return _CountryCard(country: country);
-        }).toList(),
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
       ),
+      itemCount: countries.length,
+      itemBuilder: (context, index) {
+        return _CountryCard(country: countries[index]);
+      },
     );
   }
 }
@@ -148,7 +132,8 @@ class _CountryCard extends StatelessWidget {
   }
 
   Widget _countryStats(Country country) {
-    int totalCases = country.active + country.recovered + country.deaths;
+    int totalCases =
+        (country.active + country.recovered + country.deaths).toInt();
     return Column(
       children: <Widget>[
         Container(
@@ -179,8 +164,9 @@ class _CountryCard extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
-              _statWidget('Active', country.active, color: Colors.red[600]),
-              _statWidget('Recovered', country.recovered,
+              _statWidget('Active', country.active.toInt(),
+                  color: Colors.red[600]),
+              _statWidget('Recovered', country.recovered.toInt(),
                   color: Colors.green[600]),
             ],
           ),
@@ -190,8 +176,8 @@ class _CountryCard extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
-              _statWidget('Deaths', country.deaths),
-              _statWidget('Total/Million', country.casesPerMillion,
+              _statWidget('Deaths', country.deaths.toInt()),
+              _statWidget('Total/Million', country.casesPerOneMillion.toInt(),
                   color: Colors.blue[600]),
             ],
           ),
@@ -211,7 +197,8 @@ class _CountryCard extends StatelessWidget {
                 children: <Widget>[
                   Container(
                     padding: EdgeInsets.only(left: 10, top: 10),
-                    child: Flags.getMiniFlag(country.code, 24, null),
+                    child:
+                        Flags.getMiniFlag(country.countryInfo.code, 24, null),
                   ),
                   Expanded(
                     child: Container(
