@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'model/country.dart';
@@ -9,7 +10,7 @@ void main() => runApp(App());
 
 Future<List<Country>> fetchCountries(http.Client client) async {
   final response = await client.get('https://corona.lmao.ninja/countries/?sort=cases');
-  return parseCountries(response.body);
+  return compute(parseCountries, response.body);
 }
 
 List<Country> parseCountries(String responseBody) {
